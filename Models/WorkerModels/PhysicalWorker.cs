@@ -1,37 +1,20 @@
 ﻿using Models.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace Models.WorkerModels
 {
-    public class PhysicalWorker : IEmployee
-    {
-        public Guid Id { get; set; }
-
-        public string Name { get; set; }
-
-        public string LastName { get; set; }
-
-        public float Experience { get; set; }
-
-        public Address Address { get; set; }
-
-        public WorkerType WorkerType { get; set; }
-
+    public class PhysicalWorker : Employee
+    { 
+        [Required]
         public int Strength;
 
-        public PhysicalWorker(Guid id, string name, string lastName, float experience, Address address, WorkerType workerType, int strength)
+        public PhysicalWorker(Guid id, string name, string lastname, int age, float experience, Address address, WorkerType workertype, int strength) : base(id, name, lastname, age, experience, address, workertype)
         {
-            Id = id;
-            Name = name;
-            LastName = lastName;
-            Experience = experience;
-            Address = address;
-            WorkerType = workerType;
-            Strength = strength;
+            this.Strength = strength;
         }
+
     }
 }

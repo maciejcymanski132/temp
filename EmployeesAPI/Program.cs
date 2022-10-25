@@ -1,3 +1,11 @@
+using DataAccess.Interfaces;
+using DataService;
+using EmployeesAPI;
+using Microsoft.OpenApi.Models;
+using Models.Dto;
+using Models.WorkerModels;
+using System.Text.Json.Serialization;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +15,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddControllersWithViews()
+                .AddJsonOptions(options =>
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+builder.Services.AddAutoMapper(typeof(AutoMapperConfiguration));
+
+builder.Services.AddSingleton<IEmployeesRepository, EmployeesRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

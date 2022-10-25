@@ -1,22 +1,18 @@
 ﻿using Models;
 using Models.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Models.WorkerModels;
 
 namespace DataService
 {
     public class DataStorage
     {
-        public ICollection<IEmployee> Employees;
+        public ICollection<Employee> Employees;
 
         public ICollection<OfficeStation> OfficeStations;
 
         public DataStorage()
         {
-            this.Employees = new List<IEmployee>();
+            this.Employees = new List<Employee>();
             this.OfficeStations = new List<OfficeStation>();
         }
     }

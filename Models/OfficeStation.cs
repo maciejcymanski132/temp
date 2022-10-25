@@ -8,6 +8,12 @@ namespace Models
 {
     public class OfficeStation
     {
+        public OfficeStation(Guid id, Guid assignedEmployee)
+        {
+            Id = id;
+            AssignedEmployee = assignedEmployee;
+        }
+
         Guid Id { get; set; }
 
         Guid AssignedEmployee { get; set; }
