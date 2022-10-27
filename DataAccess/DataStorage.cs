@@ -1,14 +1,13 @@
 ﻿using Models;
-using Models.Interfaces;
 using Models.WorkerModels;
 
 namespace DataService
 {
     public class DataStorage
     {
-        public ICollection<Employee> Employees;
+        public List<Employee> Employees;
 
-        public ICollection<OfficeStation> OfficeStations;
+        public List<OfficeStation> OfficeStations;
 
         public DataStorage()
         {

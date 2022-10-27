@@ -1,6 +1,6 @@
-﻿using Models;
+﻿using DataService;
+using Models;
 using Models.Dto;
-using Models.Interfaces;
 using Models.WorkerModels;
 
 namespace DataProvider
@@ -22,7 +22,7 @@ namespace DataProvider
                         throw new ArgumentException("Invalid properties for physical worker");
                     }
                     break;
-                case WorkerType.Merchant:
+                case WorkerType.Trader:
                     if (employee.Commission == null || employee.Strength != null || employee.Efficiency == null || employee.Intelligence != null || employee.OfficeStation != null)
                     {
                         throw new ArgumentException("Invalid properties for trader");

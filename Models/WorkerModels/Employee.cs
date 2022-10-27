@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Models.WorkerModels
 {
-    public class Employee
+    public class Employee : IEmployee
     {
         public Guid Id { get; set; }
 
@@ -26,7 +21,6 @@ namespace Models.WorkerModels
 
         public WorkerType WorkerType { get; set; }
 
-        public virtual void EvaluateEmployee() {}
 
         public Employee(Guid id, string name, string lastName, int age, float experience, Address address, WorkerType workerType)
         {
@@ -39,5 +33,9 @@ namespace Models.WorkerModels
             WorkerType = workerType;
         }
 
+        public virtual float EvaluateEmployee()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

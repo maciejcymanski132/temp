@@ -8,8 +8,8 @@ namespace Models
 {
     public enum Efficiency
     {
-        High,
-        Medium,
-        Low
+        High = 120,
+        Medium = 90,
+        Low = 60
     }
 }

@@ -10,6 +10,6 @@ namespace Models
     {
         OfficeWorker,
         PhysicalWorker,
-        Merchant
+        Trader
     }
 }

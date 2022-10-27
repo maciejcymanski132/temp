@@ -3,7 +3,6 @@ using DataAccess.Interfaces;
 using DataProvider;
 using Models;
 using Models.Dto;
-using Models.Interfaces;
 using Models.WorkerModels;
 using System;
 using System.Collections.Generic;
@@ -19,15 +18,12 @@ namespace DataService
         public DataStorage storage { get; set; }
         public EmployeeValidator _validator = new EmployeeValidator();
 
-        public IMapper mapper;
-
-        public EmployeesRepository(IMapper mapper)
+        public EmployeesRepository()
         {
             this.storage = new DataStorage();
-            this.mapper = mapper;
         }
 
-        public IEnumerable<OfficeStation> GetAllStations()
+        public List<OfficeStation> GetAllStations()
         {
             return this.storage.OfficeStations;
         }
@@ -36,6 +32,29 @@ namespace DataService
         public IEnumerable<Employee> GetAllEmployees()
         {
             return this.storage.Employees;
+        }
+
+        public List<Employee> GetSortedEmployees()
+        {
+            return this.storage.Employees.OrderByDescending(x => x.Experience).ThenBy(x => x.Age).ThenBy(x => x.LastName).ToList();
+        }
+
+        public List<Employee> GetEmployeesByCity(string city)
+        {
+            return this.storage.Employees.Where(e => e.Address.City.ToLower().Equals(city.ToLower())).ToList();
+        }
+
+        public float? EvaluateEmployee(Guid id)
+        {
+            try
+            {
+                var value = this.storage.Employees.Where(e => e.Id == id).First().EvaluateEmployee();
+                return value;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         public int RemoveEmployee(Guid id)
@@ -49,48 +68,41 @@ namespace DataService
             return 0;
         }
 
-        public Employee? AddEmployee(EmployeeDto employee)
+        public List<Employee?> AddEmployees(List<EmployeeDto> employees)
         {
-            Employee worker;
-            Console.WriteLine("wtf");
-            var isValid = this._validator.ValidateEmployee(employee);
+            List<Employee> workers = new List<Employee>();
 
-            switch (employee.WorkerType)
+            foreach(var employee in employees)
             {
-                case WorkerType.OfficeWorker:
-                    worker = new OfficeWorker(employee.Id, employee.Name, employee.LastName,employee.Age, employee.Experience, employee.Address, employee.WorkerType, (int)employee.Intelligence, (Guid)employee.OfficeStation);
-                    break;
-                case WorkerType.PhysicalWorker:
-                    worker = new PhysicalWorker(employee.Id, employee.Name, employee.LastName, employee.Age, employee.Experience, employee.Address, employee.WorkerType, (int)employee.Strength); 
-                    break;
-                case WorkerType.Merchant:
-                    worker = new Trader(employee.Id, employee.Name, employee.LastName, employee.Age, employee.Experience, employee.Address, employee.WorkerType, (float)employee.Commission, this.CalculateEfficiency((int)employee.Efficiency));
-                    break;
-                default:
-                    throw new ArgumentException("Invalid worker type");
+                Console.Write(employee.Address.City);
+                this._validator.ValidateEmployee(employee);
+
+                switch (employee.WorkerType)
+                {
+                    case WorkerType.OfficeWorker:
+                        workers.Add(new OfficeWorker(Guid.NewGuid(), employee.Name, employee.LastName, employee.Age, employee.Experience, employee.Address, employee.WorkerType, (int)employee.Intelligence, (Guid)employee.OfficeStation));
+                        break;
+                    case WorkerType.PhysicalWorker:
+                        workers.Add(new PhysicalWorker(Guid.NewGuid(), employee.Name, employee.LastName, employee.Age, employee.Experience, employee.Address, employee.WorkerType, (int)employee.Strength));
+                        break;
+                    case WorkerType.Trader:
+                        workers.Add(new Trader(Guid.NewGuid(), employee.Name, employee.LastName, employee.Age, employee.Experience, employee.Address, employee.WorkerType, (float)employee.Commission, this.CalculateEfficiency((int)employee.Efficiency)));
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid worker type");
+                }
             }
-            this.storage.Employees.Add(worker);
-            return worker;
 
+            if(workers.Any(w => this.storage.Employees.Select(e => e.Id).Contains(w.Id)))
+            {
+                throw new ArgumentException("Id of worker is not unique");
+            }
+
+            this.storage.Employees.AddRange(workers);
+
+            return workers;
         }
 
-        public int AddTrader(TraderDto employee)
-        {
-            storage.Employees.Add(this.mapper.Map<Trader>(employee));
-            return 1;
-        }
-
-        public int AddPsychicalWorker(PhysicalWorkerDto employee)
-        {
-            storage.Employees.Add(this.mapper.Map<PhysicalWorker>(employee));
-            return 1;
-        }
-
-        public int AddOfficeWorker(OfficeWorkerDto employee)
-        {
-            storage.Employees.Add(this.mapper.Map<OfficeWorker>(employee));
-            return 1;
-        }
 
         public Efficiency CalculateEfficiency(int efficiency)
         {

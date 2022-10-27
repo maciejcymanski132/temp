@@ -4,16 +4,19 @@ namespace Models
 {
     public class Trader : Employee
     {
-        [Required]
         public float Commission { get; set; }
 
-        [Required]
         public Efficiency Efficiency { get; set; }
 
-        public Trader(Guid id, string name,  string lastname, int age, float experience, Address address, WorkerType workertype,float commission, Efficiency efficiency) : base(id,name,lastname,age,experience,address,workertype)
+        public Trader(Guid id, string name,  string lastname, int age, float experience, Address address, WorkerType WorkerType,float commission, Efficiency efficiency) : base(id,name,lastname,age,experience,address,WorkerType)
         {
             this.Commission = commission;
             this.Efficiency = efficiency;
+        }
+
+        public override float EvaluateEmployee()
+        {
+            return (int)this.Efficiency * Experience;
         }
 
     }

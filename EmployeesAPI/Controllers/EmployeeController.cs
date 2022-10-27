@@ -4,7 +4,6 @@ using DataAccess.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Models.Dto;
-using Models.Interfaces;
 using Models.WorkerModels;
 using System.Text.Json;
 
@@ -18,14 +17,10 @@ namespace EmployeesAPI.Controllers
 
         private readonly ILogger<EmployeeController> _logger;
 
-        private IMapper _mapper;
-
-
-        public EmployeeController(ILogger<EmployeeController> logger, IEmployeesRepository repository, IMapper mapper)
+        public EmployeeController(ILogger<EmployeeController> logger, IEmployeesRepository repository)
         {
             _logger = logger;
             _repository = repository;
-            _mapper = mapper;
         }
 
         [HttpGet]
@@ -39,11 +34,22 @@ namespace EmployeesAPI.Controllers
             return this.Ok(_repository.GetAllEmployees().Select(e => (object)e));
         }
 
-        //[HttpGet("{employeeId:Guid}")]
-        //public IActionResult GetEmployee([FromRoute] Guid employeeId)
-        //{
-        //    return this.Ok(_repository.GetEmployee(employeeId));
-        //}
+       [HttpGet("sortedEmployees")]
+       public IActionResult GetSortedEmployees()
+        {
+            return this.Ok(_repository.GetSortedEmployees());
+        }
+
+        [HttpGet("employeesByCity/{city}")]
+        public IActionResult GetEmployeesByCity([FromRoute] string city)
+        {
+            var result = this._repository.GetEmployeesByCity(city);
+            if (result.Count > 0)
+            {
+                return this.Ok(result);
+            }
+            return this.NotFound($"No employees in {city}");
+        }
 
         [HttpDelete("{employeeId:Guid}")]
         public IActionResult RemoveEmployee([FromRoute] Guid employeeId)
@@ -57,12 +63,12 @@ namespace EmployeesAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddEmployee([FromBody] EmployeeDto employee, WorkerType workerType)
+        public IActionResult AddEmployees([FromBody] List<EmployeeDto> employees)
         {
 
-            var response = this._repository.AddEmployee(employee); Console.WriteLine(JsonSerializer.Serialize(employee));
+            var response = this._repository.AddEmployees(employees);
 
-            if (response is Employee)
+            if (response is IEnumerable<Employee>)
             {
                 return this.Ok(response);
             }
@@ -70,22 +76,16 @@ namespace EmployeesAPI.Controllers
             return this.NotFound();
         }
 
-        [HttpPost("PsychicalWorker")]
-        public IActionResult AddPsychicalWorker([FromBody] PhysicalWorkerDto employee)
+        [HttpGet("evaluate/{employeeId:Guid}")]
+        public IActionResult EvaluateEmployee([FromRoute] Guid employeeId)
         {
-            return this.Ok(this._repository.AddPsychicalWorker(employee));
-        }
+            var response = _repository.EvaluateEmployee(employeeId);
+            if (response != null)
+            {
+                return this.Ok(response);
+            }
+            return this.NotFound("No employee with such id");
+        } 
 
-        [HttpPost("OfficeWorker")]
-        public IActionResult AddOfficeWorker([FromBody] OfficeWorkerDto employee)
-        {
-            return this.Ok(this._repository.AddOfficeWorker(employee));
-        }
-
-        [HttpPost("Trader")]
-        public IActionResult AddTrader([FromBody] TraderDto employee)
-        {
-            return this.Ok(this._repository.AddTrader(employee));
-        }
     }
 }

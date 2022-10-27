@@ -1,7 +1,9 @@
 using DataAccess.Interfaces;
 using DataService;
 using EmployeesAPI;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using Models;
 using Models.Dto;
 using Models.WorkerModels;
 using System.Text.Json.Serialization;
@@ -17,9 +19,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddControllersWithViews()
                 .AddJsonOptions(options =>
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
-builder.Services.AddAutoMapper(typeof(AutoMapperConfiguration));
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
 
 builder.Services.AddSingleton<IEmployeesRepository, EmployeesRepository>();
 var app = builder.Build();

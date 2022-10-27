@@ -1,5 +1,5 @@
-﻿using Models.Dto;
-using Models.Interfaces;
+﻿using Models;
+using Models.Dto;
 using Models.WorkerModels;
 using System;
 using System.Collections.Generic;
@@ -13,14 +13,17 @@ namespace DataAccess.Interfaces
     {
         public IEnumerable<Employee> GetAllEmployees();
 
+        public List<Employee> GetSortedEmployees();
+
+        public List<Employee> GetEmployeesByCity(string city);
+
+        public List<OfficeStation> GetAllStations();
+
         public int RemoveEmployee(Guid Id);
 
-        public Employee? AddEmployee(EmployeeDto employee);
+        public List<Employee?> AddEmployees(List<EmployeeDto> employees);
 
-        public int AddTrader(TraderDto employee);
+        public float? EvaluateEmployee(Guid id);
 
-        public int AddPsychicalWorker(PhysicalWorkerDto employee);
-
-        public int AddOfficeWorker(OfficeWorkerDto employee);
     }
 }
