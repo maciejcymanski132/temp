@@ -12,7 +12,7 @@ namespace Models.Dto
 {
         public class EmployeeDto
         {
-        public EmployeeDto(string name, string lastName, int age, float experience, Address address, WorkerType WorkerType, int strength, int commission, int efficiency,int intelligence, Guid officeStation ) 
+        public EmployeeDto(string name, string lastName, int age, float experience, Address address, WorkerType WorkerType, int? strength, int? commission, int? efficiency,int? intelligence, Guid? officeStation ) 
         {
             this.Name = name;
             this.LastName = lastName;

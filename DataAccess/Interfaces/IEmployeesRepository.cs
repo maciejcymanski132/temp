@@ -17,13 +17,13 @@ namespace DataAccess.Interfaces
 
         public List<Employee> GetEmployeesByCity(string city);
 
-        public List<OfficeStation> GetAllStations();
-
         public int RemoveEmployee(Guid Id);
 
-        public List<Employee?> AddEmployees(List<EmployeeDto> employees);
+        public List<Employee> AddEmployees(List<EmployeeDto> employees);
 
         public float? EvaluateEmployee(Guid id);
+
+        public List<EmployeeValueDto> GetEmployeesWithValue();
 
     }
 }

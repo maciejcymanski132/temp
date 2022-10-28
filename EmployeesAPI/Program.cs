@@ -1,11 +1,5 @@
 using DataAccess.Interfaces;
 using DataService;
-using EmployeesAPI;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
-using Models;
-using Models.Dto;
-using Models.WorkerModels;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +11,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddControllers().AddNewtonsoftJson();
+
+
 builder.Services.AddControllersWithViews()
                 .AddJsonOptions(options =>
                 {
@@ -24,6 +21,9 @@ builder.Services.AddControllersWithViews()
                 });
 
 builder.Services.AddSingleton<IEmployeesRepository, EmployeesRepository>();
+builder.Services.AddSingleton<IStationsRepository, StationsRepository>();
+builder.Services.AddSingleton<IDataStorage, DataStorage>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

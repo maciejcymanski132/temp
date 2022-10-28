@@ -1,8 +1,5 @@
-﻿using AutoMapper;
-using DataAccess;
-using DataAccess.Interfaces;
+﻿using DataAccess.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Models;
 using Models.Dto;
 using Models.WorkerModels;
 using System.Text.Json;
@@ -26,11 +23,6 @@ namespace EmployeesAPI.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-           var  options = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-
             return this.Ok(_repository.GetAllEmployees().Select(e => (object)e));
         }
 
@@ -39,6 +31,14 @@ namespace EmployeesAPI.Controllers
         {
             return this.Ok(_repository.GetSortedEmployees());
         }
+
+       [HttpGet("employeesWithValue")]
+       [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EmployeeValueDto))]
+       public IActionResult GetEmployeesWithValues()
+       {
+           var result = this._repository.GetEmployeesWithValue();
+           return this.Ok(result);
+       }
 
         [HttpGet("employeesByCity/{city}")]
         public IActionResult GetEmployeesByCity([FromRoute] string city)

@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace Models
 {
     public class OfficeStation
     {
-        public OfficeStation(Guid id, Guid assignedEmployee)
+        public OfficeStation(Guid id, string signature, Guid assignedEmployee)
         {
-            Id = id;
-            AssignedEmployee = assignedEmployee;
+            this.Id = id;
+            this.AssignedEmployee = assignedEmployee;
+            this.Signature = signature;
         }
 
-        Guid Id { get; set; }
+        public  Guid Id { get; set; }
 
-        Guid AssignedEmployee { get; set; }
+        public Guid AssignedEmployee { get; set; }
+
+        public string Signature { get; set; }
     }
 }

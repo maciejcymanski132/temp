@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Net;
+using AutoMapper;
 using DataAccess;
 using DataAccess.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,9 @@ using Models;
 using Models.Dto;
 using Models.WorkerModels;
 using System.Text.Json;
+using System.Web.Http;
+using Swashbuckle.Swagger.Annotations;
+using Microsoft.Graph;
 
 namespace EmployeesAPI.Controllers
 {
@@ -13,23 +17,25 @@ namespace EmployeesAPI.Controllers
     [ApiController]
     public class StationsComponent : Controller
     {
-        private IEmployeesRepository _repository { get; set; }
+        private IStationsRepository _repository { get; set; }
 
-        private readonly ILogger<EmployeeController> _logger;
-
-        public StationsComponent(ILogger<EmployeeController> logger, IEmployeesRepository repository)
+        public StationsComponent( IStationsRepository repository)
         {
-            _logger = logger;
             _repository = repository;
         }
 
-        [HttpGet]
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<OfficeStation>))]
         public IActionResult GetStations()
         {
             return this.Ok(this._repository.GetAllStations());
         }
 
-        [HttpPost]
-        public IActionResult AddStation() { return this.Ok(); }
+        [Microsoft.AspNetCore.Mvc.HttpPost("{signature}")]
+        public IActionResult AddStation([FromRoute] string signature)
+        {
+            var response = this._repository.AddStation(signature);
+            return this.Ok(response);
+        }
     }
 }

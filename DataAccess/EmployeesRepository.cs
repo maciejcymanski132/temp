@@ -1,54 +1,46 @@
-﻿using AutoMapper;
-using DataAccess.Interfaces;
+﻿using DataAccess.Interfaces;
 using DataProvider;
 using Models;
 using Models.Dto;
 using Models.WorkerModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace DataService
 {
     public class EmployeesRepository : IEmployeesRepository
     {
-        public DataStorage storage { get; set; }
-        public EmployeeValidator _validator = new EmployeeValidator();
+        private IDataStorage _storage { get; set; }
+        private readonly EmployeeValidator _validator = new();
 
-        public EmployeesRepository()
+        public EmployeesRepository(IDataStorage storage)
         {
-            this.storage = new DataStorage();
+            this._storage = storage;
         }
-
-        public List<OfficeStation> GetAllStations()
-        {
-            return this.storage.OfficeStations;
-        }
-
 
         public IEnumerable<Employee> GetAllEmployees()
         {
-            return this.storage.Employees;
+            return this._storage.GetEmployees();
         }
 
         public List<Employee> GetSortedEmployees()
         {
-            return this.storage.Employees.OrderByDescending(x => x.Experience).ThenBy(x => x.Age).ThenBy(x => x.LastName).ToList();
+            return this._storage.GetEmployees().OrderByDescending(x => x.Experience).ThenBy(x => x.Age).ThenBy(x => x.LastName).ToList();
         }
 
         public List<Employee> GetEmployeesByCity(string city)
         {
-            return this.storage.Employees.Where(e => e.Address.City.ToLower().Equals(city.ToLower())).ToList();
+            return this._storage.GetEmployees().Where(e => e.Address.City.ToLower().Equals(city.ToLower())).ToList();
+        }
+
+        public List<EmployeeValueDto> GetEmployeesWithValue()
+        {
+            return this._storage.GetEmployees().Select(e => new EmployeeValueDto(e.Id, e.Name, e.LastName, e.WorkerType, e.EvaluateEmployee())).ToList();
         }
 
         public float? EvaluateEmployee(Guid id)
         {
             try
             {
-                var value = this.storage.Employees.Where(e => e.Id == id).First().EvaluateEmployee();
+                var value = this._storage.GetEmployees().First(e => e.Id == id).EvaluateEmployee();
                 return value;
             }
             catch (Exception ex)
@@ -59,28 +51,30 @@ namespace DataService
 
         public int RemoveEmployee(Guid id)
         {
-            var employee = this.storage.Employees.FirstOrDefault(e => e.Id == id);
+            var employee = this._storage.GetEmployees().FirstOrDefault(e => e.Id == id);
             if (employee != null)
             {
-                this.storage.Employees.Remove(employee);
+                this._storage.GetEmployees().Remove(employee);
                 return 1;
             }
             return 0;
         }
 
-        public List<Employee?> AddEmployees(List<EmployeeDto> employees)
+        public List<Employee> AddEmployees(List<EmployeeDto> employees)
         {
             List<Employee> workers = new List<Employee>();
 
             foreach(var employee in employees)
             {
-                Console.Write(employee.Address.City);
-                this._validator.ValidateEmployee(employee);
+                this._validator.ValidateEmployee(employee,this._storage.GetStations());
 
                 switch (employee.WorkerType)
                 {
                     case WorkerType.OfficeWorker:
-                        workers.Add(new OfficeWorker(Guid.NewGuid(), employee.Name, employee.LastName, employee.Age, employee.Experience, employee.Address, employee.WorkerType, (int)employee.Intelligence, (Guid)employee.OfficeStation));
+                        var worker = new OfficeWorker(Guid.NewGuid(), employee.Name, employee.LastName, employee.Age, employee.Experience, employee.Address, employee.WorkerType, (int)employee.Intelligence, (Guid)employee.OfficeStation);
+                        var station = this._storage.GetStations().First(s => s.Id == employee.OfficeStation);
+                        station.AssignedEmployee = worker.Id;
+                        workers.Add(worker);
                         break;
                     case WorkerType.PhysicalWorker:
                         workers.Add(new PhysicalWorker(Guid.NewGuid(), employee.Name, employee.LastName, employee.Age, employee.Experience, employee.Address, employee.WorkerType, (int)employee.Strength));
@@ -93,16 +87,15 @@ namespace DataService
                 }
             }
 
-            if(workers.Any(w => this.storage.Employees.Select(e => e.Id).Contains(w.Id)))
+            if(workers.Any(w => this._storage.GetEmployees().Select(e => e.Id).Contains(w.Id)))
             {
                 throw new ArgumentException("Id of worker is not unique");
             }
 
-            this.storage.Employees.AddRange(workers);
+            this._storage.GetEmployees().AddRange(workers);
 
             return workers;
         }
-
 
         public Efficiency CalculateEfficiency(int efficiency)
         {
